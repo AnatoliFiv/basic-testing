@@ -1,4 +1,5 @@
 // Uncomment the code below and write your tests
+import lodash from 'lodash';
 import {
   getBankAccount,
   InsufficientFundsError,
@@ -64,9 +65,18 @@ describe('BankAccount', () => {
 
   test('fetchBalance should return number in case if request did not failed', async () => {
     const account = getBankAccount(initialBalance);
-    const mockBalance = 100;
-    jest.spyOn(account, 'fetchBalance').mockResolvedValue(mockBalance);
-    await expect(account.fetchBalance()).resolves.toEqual(mockBalance);
+    const mockBalance = 50;
+    const randomSpy = jest
+      .spyOn(lodash, 'random')
+      .mockReturnValueOnce(mockBalance)
+      .mockReturnValueOnce(1);
+
+    try {
+      const result = await account.fetchBalance();
+      expect(result).toBe(mockBalance);
+    } finally {
+      randomSpy.mockRestore();
+    }
   });
 
   test('should set new balance if fetchBalance returned number', async () => {
